@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="James Toetsweek 2.0: jouw mobiele leercoach voor Frans en Biologie." />
+    <meta name="theme-color" content="#0b1830" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="James Toetsweek" />
+    <title>James Toetsweek 2.0</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Ga naar de inhoud</a>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#/home" aria-label="Naar dashboard">
+          <span class="brand-mark">J</span>
+          <span class="brand-copy">
+            <strong>James Toetsweek</strong>
+            <small>Coach 2.0</small>
+          </span>
+        </a>
+        <div class="top-stats">
+          <span class="streak-pill" title="Leerreeks"><b id="header-streak">1</b> dag</span>
+          <a class="xp-pill" href="#/progress"><b id="header-xp">0</b> XP</a>
+        </div>
+      </header>
+
+      <main id="main-content" tabindex="-1"></main>
+
+      <nav class="bottom-nav" aria-label="Hoofdnavigatie">
+        <a href="#/home" data-nav="home">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 19.5z"/><path d="M9 21v-7h6v7"/></svg>
+          <span>Vandaag</span>
+        </a>
+        <a href="#/subjects" data-nav="subjects">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 4.5v17M8 6h8M8 10h7"/></svg>
+          <span>Vakken</span>
+        </a>
+        <a href="#/focus" data-nav="focus">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>
+          <span>Focus</span>
+        </a>
+        <a href="#/progress" data-nav="progress">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v4a4 4 0 0 1-8 0zM8 5H4v2a4 4 0 0 0 4 4M16 5h4v2a4 4 0 0 1-4 4"/><path d="M12 11v5M8 21h8M9 16h6v5H9z"/></svg>
+          <span>Score</span>
+        </a>
+      </nav>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="celebration" id="celebration" aria-hidden="true"></div>
+
+    <dialog id="install-dialog">
+      <div class="dialog-card">
+        <span class="kicker">Op je telefoon</span>
+        <h2>Installeer James Toetsweek</h2>
+        <p id="install-help">Open deze pagina in Chrome of Safari en voeg hem toe aan je beginscherm.</p>
+        <div class="dialog-actions">
+          <button class="button button-ghost" data-close-dialog>Later</button>
+          <button class="button" id="confirm-install" hidden>Installeer app</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="reset-dialog">
+      <div class="dialog-card">
+        <span class="kicker">Even checken</span>
+        <h2>Alle voortgang wissen?</h2>
+        <p>XP, scores, levels, badges en je lijst “Nog oefenen” worden verwijderd.</p>
+        <div class="dialog-actions">
+          <button class="button button-ghost" data-close-dialog>Annuleren</button>
+          <button class="button button-danger" id="confirm-reset">Wis alles</button>
+        </div>
+      </div>
+    </dialog>
+
+    <noscript><p class="noscript">JavaScript is nodig om de leercoach te gebruiken.</p></noscript>
+    <script src="data.js"></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
