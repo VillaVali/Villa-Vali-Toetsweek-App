@@ -808,7 +808,8 @@ main {
 .study-tips,
 .history-timeline,
 .source-list,
-.formula-grid {
+.formula-grid,
+.glossary-grid {
   display: grid;
   gap: 10px;
 }
@@ -962,6 +963,55 @@ main {
   color: var(--green-dark);
   font-size: 0.72rem;
   font-weight: 900;
+}
+
+.glossary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.glossary-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+}
+
+.glossary-card summary {
+  display: flex;
+  min-height: 54px;
+  padding: 13px 15px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.glossary-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.glossary-card summary b {
+  font-size: 0.82rem;
+}
+
+.glossary-card summary i {
+  color: var(--accent, var(--green-dark));
+  font-style: normal;
+  font-weight: 900;
+  transition: transform 150ms ease;
+}
+
+.glossary-card[open] summary i {
+  transform: rotate(45deg);
+}
+
+.glossary-card p {
+  margin: 0;
+  padding: 0 15px 15px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 .session-page {
@@ -1824,6 +1874,10 @@ dialog::backdrop {
 
   .formula-card {
     min-height: 0;
+  }
+
+  .glossary-grid {
+    grid-template-columns: 1fr;
   }
 }
 

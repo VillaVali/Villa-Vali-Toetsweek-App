@@ -1,7 +1,7 @@
-# James Toetsweek 2.2
+# James Toetsweek 2.3
 
 Een mobile-first PWA en lokale leercoach voor Biologie, Frans, Geschiedenis en
-Wiskunde. Er is geen backend, account of buildstap nodig.
+Wiskunde en Aardrijkskunde. Er is geen backend, account of buildstap nodig.
 
 ## Lokaal starten
 
@@ -27,8 +27,9 @@ Alle leerstof staat in `data.js`. Elk vak bevat:
 
 Geschiedenis bevat 15 leeronderwerpen, een tijdlijn, 32 flashcards en 40 toetsvragen.
 Wiskunde bevat 15 leeronderwerpen, een formulekaart, 32 flashcards en 40 toetsvragen.
-Kopieer een bestaand vakobject om Engels of Aardrijkskunde interactief te maken. Zet
-daarna `enabled: true`. De vakpagina en leerstanden verschijnen automatisch.
+Aardrijkskunde bevat 15 leeronderwerpen, 32 kernbegrippen, 32 flashcards en 40
+toetsvragen. Kopieer een bestaand vakobject om Engels interactief te maken. Zet daarna
+`enabled: true`. De vakpagina en leerstanden verschijnen automatisch.
 
 ## Op een telefoon openen
 
