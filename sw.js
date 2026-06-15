@@ -1,4 +1,4 @@
-const CACHE_NAME = "james-toetsweek-v2-2-math";
+const CACHE_NAME = "james-toetsweek-v2-3-geography";
 const APP_SHELL = [
   "./",
   "./index.html",

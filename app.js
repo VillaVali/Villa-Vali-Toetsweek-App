@@ -13,7 +13,8 @@ const BADGES = [
   { id: "streak", mark: "3D", name: "Vaste basis", text: "Leer drie dagen achter elkaar.", check: (s) => s.streak >= 3 },
   { id: "historicus", mark: "GS", name: "Historicus", text: "Geef 10 goede antwoorden bij Geschiedenis.", check: (s) => (s.subjectStats.geschiedenis?.correct || 0) >= 10 },
   { id: "rekenaar", mark: "WI", name: "Formulebaas", text: "Geef 10 goede antwoorden bij Wiskunde.", check: (s) => (s.subjectStats.wiskunde?.correct || 0) >= 10 },
-  { id: "allround", mark: "4V", name: "Allrounder", text: "Geef goede antwoorden bij alle vier de vakken.", check: (s) => ["biologie", "frans", "geschiedenis", "wiskunde"].every((id) => (s.subjectStats[id]?.correct || 0) > 0) },
+  { id: "geograaf", mark: "AK", name: "Rampenspecialist", text: "Geef 10 goede antwoorden bij Aardrijkskunde.", check: (s) => (s.subjectStats.aardrijkskunde?.correct || 0) >= 10 },
+  { id: "allround", mark: "5V", name: "Allrounder", text: "Geef goede antwoorden bij alle vijf de vakken.", check: (s) => ["biologie", "frans", "geschiedenis", "wiskunde", "aardrijkskunde"].every((id) => (s.subjectStats[id]?.correct || 0) > 0) },
 ];
 
 const DEFAULT_STATE = {
@@ -33,6 +34,7 @@ const DEFAULT_STATE = {
     frans: { correct: 0, wrong: 0 },
     geschiedenis: { correct: 0, wrong: 0 },
     wiskunde: { correct: 0, wrong: 0 },
+    aardrijkskunde: { correct: 0, wrong: 0 },
   },
   quizHistory: [],
   fatherSessions: 0,
@@ -470,7 +472,7 @@ function renderSubjects() {
       <header class="page-title">
         <span class="kicker">Teamselectie</span>
         <h1>Kies je vak</h1>
-        <p>Biologie, Frans, Geschiedenis en Wiskunde zijn compleet. De andere vakken zijn als uitbreidbare basis klaargezet.</p>
+        <p>Biologie, Frans, Geschiedenis, Wiskunde en Aardrijkskunde zijn compleet. Engels staat klaar als uitbreidbare basis.</p>
       </header>
       <div class="subject-grid">
         ${Object.values(SUBJECTS).map((subject) => `
@@ -535,7 +537,7 @@ function renderSubject(subjectId) {
 
       ${subject.cheatSheet?.length ? `
         <section class="section">
-          <div class="section-heading"><div><span class="kicker">Wedstrijdkaart</span><h2>Formulekaart</h2></div></div>
+          <div class="section-heading"><div><span class="kicker">${subject.cheatSheetKicker || "Wedstrijdkaart"}</span><h2>${subject.cheatSheetTitle || "Formulekaart"}</h2></div></div>
           <div class="formula-grid">
             ${subject.cheatSheet.map((item) => `
               <article class="formula-card">
@@ -593,6 +595,20 @@ function renderSubject(subjectId) {
           `).join("")}
         </div>
       </section>
+
+      ${subject.glossary?.length ? `
+        <section class="section">
+          <div class="section-heading"><div><span class="kicker">Finish</span><h2>Begrippenlijst</h2></div><span>${subject.glossary.length} begrippen</span></div>
+          <div class="glossary-grid">
+            ${subject.glossary.map((item) => `
+              <details class="glossary-card">
+                <summary><b>${item.term}</b><i>+</i></summary>
+                <p>${item.definition}</p>
+              </details>
+            `).join("")}
+          </div>
+        </section>
+      ` : ""}
 
       ${subject.sources?.length ? `
         <section class="section source-section">
