@@ -14,7 +14,8 @@ const BADGES = [
   { id: "historicus", mark: "GS", name: "Historicus", text: "Geef 10 goede antwoorden bij Geschiedenis.", check: (s) => (s.subjectStats.geschiedenis?.correct || 0) >= 10 },
   { id: "rekenaar", mark: "WI", name: "Formulebaas", text: "Geef 10 goede antwoorden bij Wiskunde.", check: (s) => (s.subjectStats.wiskunde?.correct || 0) >= 10 },
   { id: "geograaf", mark: "AK", name: "Rampenspecialist", text: "Geef 10 goede antwoorden bij Aardrijkskunde.", check: (s) => (s.subjectStats.aardrijkskunde?.correct || 0) >= 10 },
-  { id: "allround", mark: "5V", name: "Allrounder", text: "Geef goede antwoorden bij alle vijf de vakken.", check: (s) => ["biologie", "frans", "geschiedenis", "wiskunde", "aardrijkskunde"].every((id) => (s.subjectStats[id]?.correct || 0) > 0) },
+  { id: "proofreader", mark: "EN", name: "Sharp Reader", text: "Geef 10 goede antwoorden bij Engels.", check: (s) => (s.subjectStats.engels?.correct || 0) >= 10 },
+  { id: "allround", mark: "6V", name: "Allrounder", text: "Geef goede antwoorden bij alle zes de vakken.", check: (s) => ["biologie", "frans", "geschiedenis", "wiskunde", "engels", "aardrijkskunde"].every((id) => (s.subjectStats[id]?.correct || 0) > 0) },
 ];
 
 const DEFAULT_STATE = {
@@ -34,6 +35,7 @@ const DEFAULT_STATE = {
     frans: { correct: 0, wrong: 0 },
     geschiedenis: { correct: 0, wrong: 0 },
     wiskunde: { correct: 0, wrong: 0 },
+    engels: { correct: 0, wrong: 0 },
     aardrijkskunde: { correct: 0, wrong: 0 },
   },
   quizHistory: [],
@@ -151,9 +153,25 @@ function parseLocalizedNumber(value) {
   return match ? Number(match[0]) : Number.NaN;
 }
 
+function normalizeStrictText(value) {
+  return String(value || "")
+    .normalize("NFC")
+    .replace(/[’]/g, "'")
+    .replace(/[“”]/g, "\"")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .trim();
+}
+
 function gradeOpen(question, rawAnswer) {
   const answer = normalizeAnswer(rawAnswer);
   if (!answer) return false;
+
+  if (question.strictAnswer) {
+    const submitted = normalizeStrictText(rawAnswer);
+    const accepted = [question.correctAnswer, ...(question.acceptedStrictAnswers || [])].map(normalizeStrictText);
+    return accepted.includes(submitted);
+  }
 
   if (Number.isFinite(question.numericAnswer)) {
     const submittedNumber = parseLocalizedNumber(rawAnswer);
@@ -472,7 +490,7 @@ function renderSubjects() {
       <header class="page-title">
         <span class="kicker">Teamselectie</span>
         <h1>Kies je vak</h1>
-        <p>Biologie, Frans, Geschiedenis, Wiskunde en Aardrijkskunde zijn compleet. Engels staat klaar als uitbreidbare basis.</p>
+        <p>Alle zes vakken zijn compleet en direct te oefenen.</p>
       </header>
       <div class="subject-grid">
         ${Object.values(SUBJECTS).map((subject) => `
@@ -783,8 +801,9 @@ function renderQuiz(params) {
       <section class="question-card">
         <div class="question-meta">
           <span class="difficulty ${question.difficulty}">${difficultyLabel(question.difficulty)}</span>
-          <span>${question.type === "mc" ? "Meerkeuze" : "Open vraag"}</span>
+          <span>${question.strictAnswer ? "Hoofdletters & leestekens" : question.type === "mc" ? "Meerkeuze" : "Open vraag"}</span>
         </div>
+        ${question.passage ? `<div class="reading-passage"><span>Read this</span><p>${question.passage}</p></div>` : ""}
         <h1>${question.prompt}</h1>
         ${question.type === "mc" ? renderMultipleChoice(question) : renderOpenQuestion(question)}
         ${quizSession.answered ? renderQuestionFeedback(question) : ""}
@@ -803,14 +822,16 @@ function renderMultipleChoice(question) {
   }).join("")}</div>`;
 }
 
-function renderOpenQuestion() {
+function renderOpenQuestion(question) {
   if (quizSession.answered) {
     return `<div class="submitted-answer"><span>Jouw antwoord</span><b>${quizSession.selected || "Geen antwoord"}</b></div>`;
   }
   return `
     <form class="open-answer-form" data-open-answer>
       <label for="open-answer">Jouw antwoord</label>
-      <input id="open-answer" name="answer" autocomplete="off" autocapitalize="sentences" required placeholder="Typ je antwoord..." />
+      ${question.strictAnswer
+        ? `<textarea id="open-answer" name="answer" autocomplete="off" autocapitalize="off" spellcheck="false" required placeholder="Typ de hele verbeterde zin..."></textarea>`
+        : `<input id="open-answer" name="answer" autocomplete="off" autocapitalize="sentences" required placeholder="Typ je antwoord..." />`}
       <button class="button button-lime" type="submit">Controleer antwoord</button>
     </form>
   `;
@@ -873,6 +894,7 @@ function renderFather(params) {
       <div class="father-progress">${fatherSession.index + 1} / ${fatherSession.questions.length}</div>
       <section class="father-question">
         <span class="kicker">Vader leest voor · ${difficultyLabel(question.difficulty)}</span>
+        ${question.passage ? `<div class="reading-passage dark"><span>Read this</span><p>${question.passage}</p></div>` : ""}
         <h1>${question.prompt}</h1>
         ${fatherSession.revealed ? `<div class="father-answer"><span>Antwoord</span><b>${answer}</b><p>${question.explanation}</p></div>` : `<button class="button button-lime" data-action="reveal-father">Toon antwoord</button>`}
       </section>
