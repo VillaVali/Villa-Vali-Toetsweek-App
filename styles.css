@@ -805,6 +805,165 @@ main {
   line-height: 1.5;
 }
 
+.study-tips,
+.history-timeline,
+.source-list,
+.formula-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.formula-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.formula-card {
+  display: flex;
+  min-height: 160px;
+  padding: 17px;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(145deg, white, #eef7ff);
+}
+
+.formula-card b {
+  font-size: 0.84rem;
+}
+
+.formula-card code {
+  display: block;
+  margin: 14px 0 12px;
+  padding: 10px;
+  border-left: 4px solid var(--accent, var(--blue));
+  border-radius: 8px;
+  color: var(--navy);
+  background: white;
+  font-size: 0.78rem;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.formula-card p {
+  margin: auto 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.study-tip {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 12px;
+  padding: 16px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(135deg, white, var(--green-soft));
+}
+
+.study-tip span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  color: white;
+  background: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.study-tip p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.history-timeline {
+  position: relative;
+}
+
+.history-timeline::before {
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 56px;
+  width: 2px;
+  background: var(--line);
+  content: "";
+}
+
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 20px;
+  min-height: 78px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: white;
+}
+
+.timeline-item::before {
+  position: absolute;
+  top: 24px;
+  left: 51px;
+  width: 12px;
+  height: 12px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: var(--accent, var(--green));
+  box-shadow: 0 0 0 1px var(--line);
+  content: "";
+}
+
+.timeline-item time {
+  padding-top: 2px;
+  color: var(--green-dark);
+  font-size: 0.75rem;
+  font-weight: 950;
+}
+
+.timeline-item div {
+  padding-left: 5px;
+}
+
+.timeline-item p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.source-section {
+  padding-bottom: 6px;
+}
+
+.source-list a {
+  display: flex;
+  min-height: 58px;
+  padding: 13px 15px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+}
+
+.source-list b {
+  font-size: 0.84rem;
+}
+
+.source-list span {
+  flex: 0 0 auto;
+  color: var(--green-dark);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
 .session-page {
   max-width: 620px;
   margin: 0 auto;
@@ -1657,6 +1816,14 @@ dialog::backdrop {
 
   .topic-content {
     padding-left: 17px;
+  }
+
+  .formula-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .formula-card {
+    min-height: 0;
   }
 }
 

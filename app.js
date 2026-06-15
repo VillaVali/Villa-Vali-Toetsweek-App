@@ -11,7 +11,9 @@ const BADGES = [
   { id: "comeback", mark: "R", name: "Comeback", text: "Maak een fout kaartje later goed.", check: (s) => s.recoveredCards >= 1 },
   { id: "focus", mark: "25M", name: "Focusspeler", text: "Rond een focusblok af.", check: (s) => s.focusSessions >= 1 },
   { id: "streak", mark: "3D", name: "Vaste basis", text: "Leer drie dagen achter elkaar.", check: (s) => s.streak >= 3 },
-  { id: "allround", mark: "2V", name: "Allrounder", text: "Geef goede antwoorden bij beide vakken.", check: (s) => s.subjectStats.biologie.correct > 0 && s.subjectStats.frans.correct > 0 },
+  { id: "historicus", mark: "GS", name: "Historicus", text: "Geef 10 goede antwoorden bij Geschiedenis.", check: (s) => (s.subjectStats.geschiedenis?.correct || 0) >= 10 },
+  { id: "rekenaar", mark: "WI", name: "Formulebaas", text: "Geef 10 goede antwoorden bij Wiskunde.", check: (s) => (s.subjectStats.wiskunde?.correct || 0) >= 10 },
+  { id: "allround", mark: "4V", name: "Allrounder", text: "Geef goede antwoorden bij alle vier de vakken.", check: (s) => ["biologie", "frans", "geschiedenis", "wiskunde"].every((id) => (s.subjectStats[id]?.correct || 0) > 0) },
 ];
 
 const DEFAULT_STATE = {
@@ -29,6 +31,8 @@ const DEFAULT_STATE = {
   subjectStats: {
     biologie: { correct: 0, wrong: 0 },
     frans: { correct: 0, wrong: 0 },
+    geschiedenis: { correct: 0, wrong: 0 },
+    wiskunde: { correct: 0, wrong: 0 },
   },
   quizHistory: [],
   fatherSessions: 0,
@@ -137,9 +141,23 @@ function normalizeAnswer(value) {
     .trim();
 }
 
+function parseLocalizedNumber(value) {
+  const match = String(value || "")
+    .replace(/\s+/g, "")
+    .replace(",", ".")
+    .match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : Number.NaN;
+}
+
 function gradeOpen(question, rawAnswer) {
   const answer = normalizeAnswer(rawAnswer);
   if (!answer) return false;
+
+  if (Number.isFinite(question.numericAnswer)) {
+    const submittedNumber = parseLocalizedNumber(rawAnswer);
+    const tolerance = question.numericTolerance ?? 0.000001;
+    return Number.isFinite(submittedNumber) && Math.abs(submittedNumber - question.numericAnswer) <= tolerance;
+  }
 
   const accepted = (question.acceptedAnswers || [question.correctAnswer]).map(normalizeAnswer);
   if (accepted.some((item) => answer === item || (item.length > 5 && answer.includes(item)))) return true;
@@ -152,6 +170,10 @@ function gradeOpen(question, rawAnswer) {
   if (question.requiredAny) {
     const matches = [...new Set(question.requiredAny.map(normalizeAnswer))].filter((keyword) => answer.includes(keyword));
     return matches.length >= (question.minimumMatches || 1);
+  }
+
+  if (question.requiredGroups) {
+    return question.requiredGroups.every((group) => group.map(normalizeAnswer).some((keyword) => answer.includes(keyword)));
   }
 
   return false;
@@ -448,7 +470,7 @@ function renderSubjects() {
       <header class="page-title">
         <span class="kicker">Teamselectie</span>
         <h1>Kies je vak</h1>
-        <p>Frans en Biologie zijn compleet. De andere vakken zijn als uitbreidbare basis klaargezet.</p>
+        <p>Biologie, Frans, Geschiedenis en Wiskunde zijn compleet. De andere vakken zijn als uitbreidbare basis klaargezet.</p>
       </header>
       <div class="subject-grid">
         ${Object.values(SUBJECTS).map((subject) => `
@@ -493,8 +515,8 @@ function renderSubject(subjectId) {
             <a class="mode-card" href="#/quiz?subject=${subject.id}&count=10">
               <span class="mode-icon">10</span><b>Korte toets</b><small>10 gemixte vragen</small>
             </a>
-            <a class="mode-card" href="#/quiz?subject=${subject.id}&count=30">
-              <span class="mode-icon">30</span><b>Volledige toets</b><small>Alle 30 vragen</small>
+            <a class="mode-card" href="#/quiz?subject=${subject.id}&count=${subject.questions.length}">
+              <span class="mode-icon">${subject.questions.length}</span><b>Volledige toets</b><small>Alle ${subject.questions.length} vragen</small>
             </a>
             <a class="mode-card dark" href="#/father?subject=${subject.id}">
               <span class="mode-icon">V</span><b>Vader-overhoor</b><small>Rustig samen oefenen</small>
@@ -511,6 +533,52 @@ function renderSubject(subjectId) {
         <section class="section"><div class="coach-note"><b>Uitbreidbaar vak</b><p>De samenvatting staat klaar. Voeg later kaartjes en vragen toe in <code>data.js</code>; de leerstanden verschijnen dan automatisch.</p></div></section>
       `}
 
+      ${subject.cheatSheet?.length ? `
+        <section class="section">
+          <div class="section-heading"><div><span class="kicker">Wedstrijdkaart</span><h2>Formulekaart</h2></div></div>
+          <div class="formula-grid">
+            ${subject.cheatSheet.map((item) => `
+              <article class="formula-card">
+                <b>${item.title}</b>
+                <code>${item.formula}</code>
+                <p>${item.note}</p>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      ` : ""}
+
+      ${subject.studyTips?.length ? `
+        <section class="section">
+          <div class="section-heading"><div><span class="kicker">Leercoach</span><h2>Zo leer je dit hoofdstuk</h2></div></div>
+          <div class="study-tips">
+            ${subject.studyTips.map((tip, index) => `
+              <article class="study-tip">
+                <span>${String(index + 1).padStart(2, "0")}</span>
+                <p>${tip}</p>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      ` : ""}
+
+      ${subject.timeline?.length ? `
+        <section class="section">
+          <div class="section-heading"><div><span class="kicker">Kapstok</span><h2>Tijdlijn</h2></div></div>
+          <div class="history-timeline">
+            ${subject.timeline.map((event) => `
+              <article class="timeline-item">
+                <time>${event.year}</time>
+                <div>
+                  <b>${event.title || event.event}</b>
+                  ${event.detail ? `<p>${event.detail}</p>` : ""}
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+      ` : ""}
+
       <section class="section">
         <div class="section-heading"><div><span class="kicker">Spelplan</span><h2>Samenvatting</h2></div></div>
         <div class="topic-list">
@@ -525,6 +593,15 @@ function renderSubject(subjectId) {
           `).join("")}
         </div>
       </section>
+
+      ${subject.sources?.length ? `
+        <section class="section source-section">
+          <div class="section-heading"><div><span class="kicker">Verdieping</span><h2>Gebruikte bronnen</h2></div></div>
+          <div class="source-list">
+            ${subject.sources.map((source) => `<a href="${source.url}" target="_blank" rel="noopener"><b>${source.title}</b><span>Open bron ↗</span></a>`).join("")}
+          </div>
+        </section>
+      ` : ""}
     </div>
   `;
 }
@@ -644,7 +721,8 @@ function createQuizSession(subject, count, reviewOnly) {
 
 function renderQuiz(params) {
   const subject = SUBJECTS[params.get("subject")];
-  const count = Math.min(Number(params.get("count") || 10), 30);
+  const requestedCount = Math.max(1, Number(params.get("count") || 10));
+  const count = subject ? Math.min(requestedCount, subject.questions.length) : requestedCount;
   const reviewOnly = params.get("review") === "1";
   if (!subject?.enabled) return renderModePicker("quiz", "Toetsmodus", "Kies een vak en krijg direct feedback.");
   if (!quizSession || quizSession.subjectId !== subject.id || quizSession.count !== count || quizSession.reviewOnly !== reviewOnly) {
